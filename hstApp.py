@@ -34,20 +34,31 @@ class MainApplication(tk.Frame):
         self.parent.title('HST App')
 
         # defining some containers
+        self.mainContainer = tk.Frame(self.parent)
+        self.mainContainer.pack(fill=tk.X, expand=1)
+        tk.Grid.columnconfigure(self.mainContainer, 0, weight=1) # <- allows the button to expand to fill frame
+        tk.Grid.columnconfigure(self.mainContainer, 1, weight=1) # <- allows the button to expand to fill frame
+        tk.Grid.columnconfigure(self.mainContainer, 2, weight=1) # <- allows the button to expand to fill frame
 
         # controllers
-        self.frame1 = tk.Frame(self.parent, bg='red', bd=3, relief=tk.SUNKEN)
-        self.frame1.pack(side=tk.LEFT, fill=tk.X, expand=1)
+        self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
+        self.frame1.grid(row=0, column=0, sticky=tk.W+tk.E+tk.N)
         tk.Grid.rowconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
         tk.Grid.columnconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
         tk.Grid.columnconfigure(self.frame1, 1, weight=1) # <- allows the button to expand to fill frame
-        tk.Grid.columnconfigure(self.frame1, 2, weight=1) # <- allows the button to expand to fill frame
+
+        # time format
+        self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
+        self.frame2.grid(row=1, column=0, sticky=tk.W+tk.E+tk.S)
+        tk.Grid.columnconfigure(self.frame2, 0, weight=1)
+        tk.Grid.columnconfigure(self.frame2, 1, weight=1)
+        tk.Grid.columnconfigure(self.frame2, 2, weight=1)
 
         # canvas
-        self.frame2 = tk.Frame(self.parent, bg='blue', bd=3, relief=tk.SUNKEN)
-        self.frame2.pack(side=tk.RIGHT, fill=tk.X, expand=1)
-        tk.Grid.rowconfigure(self.frame2, 0, weight=1)
-        tk.Grid.columnconfigure(self.frame2, 0, weight=1)
+        self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
+        self.frame3.grid(row=0, column=1, columnspan=2, sticky='nsew')
+        tk.Grid.rowconfigure(self.frame3, 0, weight=1)
+        tk.Grid.columnconfigure(self.frame3, 0, weight=1)
 
         # parameters
         # self.frame3 = tk.Frame(self.parent, bg='blue', bd=3, relief=tk.SUNKEN)
@@ -61,11 +72,11 @@ class MainApplication(tk.Frame):
         self.fig = Figure(figsize=(4,4))
         self.ax = self.fig.add_subplot(111)
         # 2 - ... create a canvas...
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame2)
+        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame3)
         plt.gcf().canvas.draw()
         self.canvas.get_tk_widget().pack()
         # 3 - ... and finally a toolbar
-        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.frame2)
+        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.frame3)
         self.toolbar.update()
         self.canvas._tkcanvas.pack()
 
@@ -87,34 +98,35 @@ class MainApplication(tk.Frame):
         self.timeFormatRadioButtons()
 
         # gridding and packing
-        self.listLineIDListBox.grid(row=1, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
+        self.listLineIDListBox.grid(row=0, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.quitButton.grid(row=2, columnspan=3, sticky=tk.N+tk.S+tk.E+tk.W)
+        self.statusButton.grid(row=1, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
+        self.quitButton.grid(row=1, column=1, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.statusButton.grid(row=3, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
-        self.readDataButton.grid(row=3, column=1, sticky=tk.N+tk.S+tk.E+tk.W)
-        self.clearData.grid(row=3, column=2, sticky=tk.N+tk.S+tk.E+tk.W)
+        self.readDataButton.grid(row=2, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
+        self.clearData.grid(row=2, column=1, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.plot_radialProfile_Button.grid(row=4, columnspan=3, sticky=tk.N+tk.S+tk.E+tk.W)
+        self.plot_radialProfile_Button.grid(row=3, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.velLabel.grid(row=5, columnspan=3, sticky=tk.W+tk.E)
-        self.velScale.grid(row=6, columnspan=3, sticky=tk.W+tk.E)
+        self.velLabel.grid(row=4, columnspan=2, sticky=tk.W+tk.E)
+        self.velScale.grid(row=5, columnspan=2, sticky=tk.W+tk.E)
 
-        self.slitWidthLabel.grid(row=7, columnspan=3, sticky=tk.W+tk.E)
-        self.slitWidthScale.grid(row=8, columnspan=3, sticky=tk.W+tk.E)
+        self.slitWidthLabel.grid(row=6, columnspan=2, sticky=tk.W+tk.E)
+        self.slitWidthScale.grid(row=7, columnspan=2, sticky=tk.W+tk.E)
 
-        self.radiusLabel.grid(row=9, columnspan=3, sticky=tk.W+tk.E)
-        self.radiusScale.grid(row=10, columnspan=3, sticky=tk.W+tk.E)
+        self.radiusLabel.grid(row=8, columnspan=2, sticky=tk.W+tk.E)
+        self.radiusScale.grid(row=9, columnspan=2, sticky=tk.W+tk.E)
 
-        self.paLabel.grid(row=11, columnspan=3, sticky=tk.W+tk.E)
-        self.paScale.grid(row=12, columnspan=3, sticky=tk.W+tk.E)
+        self.paLabel.grid(row=10, columnspan=2, sticky=tk.W+tk.E)
+        self.paScale.grid(row=11, columnspan=2, sticky=tk.W+tk.E)
 
         self.logY_checkButton.pack()
 
         # Radio buttons for time format (called by self.timeFormatRadioButtons)
-        self.timeFormatRadioButton1.grid(row=13, column=0, sticky=tk.W)
-        self.timeFormatRadioButton2.grid(row=13, column=1, sticky=tk.W)
-        self.timeFormatRadioButton3.grid(row=13, column=2, sticky=tk.W)
+        self.timeFormatRadioButton1.grid(row=0, column=0, sticky=tk.W)
+        self.timeFormatRadioButton2.grid(row=0, column=1, sticky=tk.W)
+        self.timeFormatRadioButton3.grid(row=0, column=2, sticky=tk.W)
+        self.timeFormatRadioButton4.grid(row=0, column=3, sticky=tk.W)
 
         # Button configurations
         ttk.Style().configure('green.TButton', foreground='green')
@@ -125,18 +137,43 @@ class MainApplication(tk.Frame):
     # radio button options
     def printTimeSelection(self, var):
         if (var.get() == 1):
-            print('Time in JD')
+            # print('Time in JD')
+            self.deleteCheckboxes()
+            self.createCheckboxes(self.JD)
         if (var.get() == 2):
-            print('Time in Greg')
+            from astropy.time import Time
+            # print('Time in DecYear')
+            self.deleteCheckboxes()
+            date = np.asarray(self.JD, dtype=np.str)
+            for i, item in enumerate(self.JD):
+                time = Time(self.JD[i], format='jd')
+                date[i] = '{0:.2f}'.format(time.decimalyear)
+            self.createCheckboxes(date)
         if (var.get() == 3):
-            print('Time in Phi')
+            # print('Time in Phi')
+            self.deleteCheckboxes()
+            phi = np.asarray(self.Phi, dtype=np.str)
+            for i, item in enumerate(self.Phi):
+                phi[i] = '{0:.4f}'.format(item)
+            self.createCheckboxes(phi)
+        if (var.get() == 4):
+            from astropy.time import Time
+            # print('Time in Greg')
+            self.deleteCheckboxes()
+            date = np.asarray(self.JD, dtype=np.str)
+            for i, item in enumerate(self.JD):
+                time = Time(self.JD[i], format='jd', out_subfmt='date')
+                date[i] = '{0}'.format(time.iso)
+            self.createCheckboxes(date)
+
 
     # Radio buttons for time format selection
     def timeFormatRadioButtons(self):
         var = tk.IntVar()
-        self.timeFormatRadioButton1 = tk.Radiobutton(self.frame1, text="JD", variable=var, value=1, command=lambda:self.printTimeSelection(var))
-        self.timeFormatRadioButton2 = tk.Radiobutton(self.frame1, text="Greg", variable=var, value=2, command=lambda:self.printTimeSelection(var))
-        self.timeFormatRadioButton3 = tk.Radiobutton(self.frame1, text="Phi", variable=var, value=3, command=lambda:self.printTimeSelection(var))
+        self.timeFormatRadioButton1 = tk.Radiobutton(self.frame2, text="JD", variable=var, value=1, command=lambda:self.printTimeSelection(var))
+        self.timeFormatRadioButton2 = tk.Radiobutton(self.frame2, text="DecYear", variable=var, value=2, command=lambda:self.printTimeSelection(var))
+        self.timeFormatRadioButton3 = tk.Radiobutton(self.frame2, text="Phi", variable=var, value=3, command=lambda:self.printTimeSelection(var))
+        self.timeFormatRadioButton4 = tk.Radiobutton(self.frame2, text="Greg", variable=var, value=4, command=lambda:self.printTimeSelection(var))
 
 
     ### Line ID listbox
@@ -191,27 +228,18 @@ class MainApplication(tk.Frame):
             self.listOfCheckboxes[i] = chk_bx.var.get()
         self.myCanvas() # <- call myCanvas() and plot the data associated to the selected checkboxes
 
-    # reading data
-    def readData(self):
-        import os
-        self.fullPath = dataList = tkFileDialog.askopenfilename(initialdir='/Volumes/Kerberos/DATA/ETC/HST/TEDS_CUBE/NEW/',
-                                                filetypes=[('JSON files', '*.json')])
-        dataDir = os.path.split(self.fullPath)[0]+'/'
-        velMin = -60
-        velMax = -20
-        import hstData
-        self.data = hstData.read(dataDir, dataList, velMin, velMax)
-        # info about lines and epochs
-        self.ntrans = len(np.unique(self.data['lineID'])) # number of lines
-        self.nepoch = len(np.unique(self.data['JD'])) # number of observations
-        self.JD = np.unique(self.data['JD']) # JD
-        self.Phi = np.unique(self.data['Phi']) # orbital phase
-        self.listOfCheckboxes = np.unique(self.data['JD']) # number of checkboxes
+    def deleteCheckboxes(self):
+        for i, item in enumerate(self.listEpochCheckButton):
+            self.listEpochCheckButton[i].grid_forget() # <- destroy checkboxes
+
+    def createCheckboxes(self, time):
+        # self.listOfCheckboxes = np.asarray(time) # number of checkboxes
         # creating the checkboxes with JD (epochs)
+        self.listEpochCheckButton = []
         self.epoch_var = []
         col = 0
         row = 14
-        for i, item in enumerate(self.JD):
+        for i, item in enumerate(time):
             var = tk.IntVar()
             self.epoch_checkButton = tk.Checkbutton(self.frame1,
                                                     relief=tk.RIDGE,
@@ -230,6 +258,25 @@ class MainApplication(tk.Frame):
                 self.epoch_checkButton.grid(row=row, column=col, sticky=tk.W+tk.E)
                 col += 1
             self.epoch_var.append(var)
+
+    # reading data
+    def readData(self):
+        import os
+        self.fullPath = dataList = tkFileDialog.askopenfilename(initialdir='/Volumes/Kerberos/DATA/ETC/HST/TEDS_CUBE/NEW/',
+                                                filetypes=[('JSON files', '*.json')])
+        dataDir = os.path.split(self.fullPath)[0]+'/'
+        velMin = -60
+        velMax = -20
+        import hstData
+        self.data = hstData.read(dataDir, dataList, velMin, velMax)
+        # info about lines and epochs
+        self.ntrans = len(np.unique(self.data['lineID'])) # number of lines
+        self.nepoch = len(np.unique(self.data['JD'])) # number of observations
+        self.JD = np.unique(self.data['JD']) # JD
+        self.Phi = np.unique(self.data['Phi']) # orbital phase
+        self.listOfCheckboxes = np.unique(self.data['JD']) # number of checkboxes
+        # create checkboxes
+        self.createCheckboxes(self.JD)
         # feed the list box with lineID
         lineList = np.unique(self.data['lineID'])
         self.listLineIDListBox.delete(0, tk.END)
@@ -252,8 +299,8 @@ class MainApplication(tk.Frame):
         if (answer):
             self.data = None # <- clear data
             self.listLineIDListBox.delete(0, tk.END) # <- clear list box
-            for i, item in enumerate(self.listEpochCheckButton):
-                self.listEpochCheckButton[i].grid_forget() # <- destroy checkboxes
+            # delete checkboxes
+            self.deleteCheckboxes()
             # clear plot area
             self.fig.clf()
             self.ax = self.fig.add_subplot(111)
@@ -317,7 +364,7 @@ class MainApplication(tk.Frame):
     ### Change Y scale of plot
     def logY_checkButton(self):
         self.logY_checkButton_var = tk.StringVar()
-        self.logY_checkButton = tk.Checkbutton(self.frame2,
+        self.logY_checkButton = tk.Checkbutton(self.frame3,
                                                 text="log10/linear",
                                                 variable=self.logY_checkButton_var,
                                                 onvalue="log", offvalue="linear",
@@ -327,7 +374,7 @@ class MainApplication(tk.Frame):
     ### Plot data button -> canvas
     def plot_radialProfile_Button(self):
         self.counter = 0
-        self.plot_radialProfile_Button = tk.Button(self.frame1, text='Plot radial profile', command=self.myCanvas)
+        self.plot_radialProfile_Button = ttk.Button(self.frame1, text='Plot radial profile', command=self.myCanvas, style='green.TButton')
 
     # plot data
     def plot_radialProfile(self, x, y, epoch):
