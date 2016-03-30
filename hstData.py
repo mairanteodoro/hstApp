@@ -1,5 +1,70 @@
 #!/usr/bin/env python
 
+def getSpec(dic, key=None, value=None, alpha=None, delta=None, boxSide=None):
+
+    import numpy as np
+    from astropy.io import fits
+    from astropy.time import Time
+
+    if key == 'lineID':
+        alist = [{'lineID':lineID, 'fileName':fileName, 'image':image, 'xScale':xScale, 'yScale':yScale, 'pixScale':pixScale, 'JD':JD, 'MJD':MJD, 'decYr':decYr, 'Phi':Phi} for lineID, fileName, image, xScale, yScale, pixScale, JD, MJD, decYr, Phi in zip(dic['lineID'], dic['fileName'], dic['image'], dic['xScale'], dic['yScale'], dic['pixScale'], dic['JD'], dic['MJD'], dic['decYr'], dic['Phi']) if lineID == value]
+
+        fitsname0 = [{'lineID':lineID, 'fileName':fileName} for lineID, fileName in zip(dic['lineID'], dic['fileName']) if lineID == value]
+
+    if key == 'JD':
+        alist = [{'lineID':lineID, 'fileName':fileName, 'image':image, 'xScale':xScale, 'yScale':yScale, 'pixScale':pixScale, 'JD':JD, 'MJD':MJD, 'decYr':decYr, 'Phi':Phi} for lineID, fileName, image, xScale, yScale, pixScale, JD, MJD, decYr, Phi in zip(dic['lineID'], dic['fileName'], dic['image'], dic['xScale'], dic['yScale'], dic['pixScale'], dic['JD'], dic['MJD'], dic['decYr'], dic['Phi']) if JD == value]
+
+        fitsname0 = [{'JD':JD, 'fileName':fileName} for JD, fileName in zip(dic['JD'], dic['fileName']) if JD == value]
+
+    res = {
+            "JD": [],
+            "fileName": [],
+            "velocity": [],
+            "spectrum": []
+    }
+
+    fitsname = [fitsname0[i]['fileName'] for i in range(len(fitsname0))]
+    res["JD"] = [alist[i]['JD'] for i in range(len(fitsname0))]
+    res["fileName"] = [alist[i]['fileName'] for i in range(len(fitsname0))]
+
+    for index, item in enumerate(fitsname):
+
+        img0, hdu0 = fits.getdata(item, 0, header=True)
+
+        # correcting the orientation of the images
+        new_img0 = img0[:,::-1,:]
+
+        # velocity
+        vel0 = hdu0.get('VMIN') + hdu0.get('DELV') * np.asarray(range(hdu0.get('NAXIS3')))
+
+        # image scale in arcsec
+        cols = np.linspace(1,hdu0.get('NAXIS1'),hdu0.get('NAXIS1'))
+        rows = np.linspace(1,hdu0.get('NAXIS2'),hdu0.get('NAXIS2'))
+        xscale = (hdu0.get('CRPIX1') - cols) * hdu0.get('DELTA')
+        yscale = (rows - hdu0.get('CRPIX2')) * hdu0.get('DELTA')
+
+        # integrated spectrum
+        # spec0 = np.sum(new_img0, axis=(1,2))
+
+        # parameter of the extraction: box size and location
+        boxsize = boxSide
+        xcoord, ycoord = alpha, delta
+
+        # converting from physical to pixel
+        box = boxsize / hdu0.get('DELTA')
+        xloc = (np.where( (xscale - xcoord)**2 == np.min( (xscale - xcoord)**2 ) ))[0][0]
+        yloc = (np.where( (yscale - ycoord)**2 == np.min( (yscale - ycoord)**2 ) ))[0][0]
+
+        # full spectrum @ selected position & apertur
+        raw_spec00 = np.sum(new_img0[:, yloc-box/2:yloc+box/2, xloc-box/2:xloc+box/2], axis=(1,2)).squeeze()
+
+        res["velocity"].append(vel0)
+        res["spectrum"].append(raw_spec00)
+
+    # returns a dictionary with all the info needed
+    # dic.keys = {"lineID", "fileName", "image", "xScale", "yScale", "pixScale", "JD", "MJD", "decYr","Phi"}
+    return res
+
 def get(dic, key=None, value=None):
 
     if dic.has_key('flux'):
@@ -86,7 +151,7 @@ def read(dataDir, dataList, velMin, velMax):
 
     for index, item in enumerate(fitsname):
 
-        img0, hdu0 = fits.getdata(dataDir+item, 0, header=True)
+        img0, hdu0 = fits.getdata(dataDir + item, 0, header=True)
 
         # correcting the orientation of the images
         new_img0 = img0[:,::-1,:]
@@ -127,7 +192,7 @@ def read(dataDir, dataList, velMin, velMax):
         # raw_images.append([index, item, raw_sli0, xscale, yscale, hdu0.get('DELTA'), dic_id[index]])
         # print(dic_id[index], item, raw_sli0.shape, xscale.shape, yscale.shape, hdu0.get('DELTA'))
         dic["lineID"].append(dic_id[index])
-        dic["fileName"].append(item)
+        dic["fileName"].append(dataDir + item)
         dic["image"].append(raw_sli0)
         dic["xScale"].append(xscale)
         dic["yScale"].append(yscale)
