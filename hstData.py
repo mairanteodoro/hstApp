@@ -103,7 +103,7 @@ def get(dic, key=None, value=None):
     return alist
 
 
-def read(dataDir, dataList, velMin, velMax):
+def read(dataList, velMin, velMax):
 
     import numpy as np
     import json
@@ -151,7 +151,7 @@ def read(dataDir, dataList, velMin, velMax):
 
     for index, item in enumerate(fitsname):
 
-        img0, hdu0 = fits.getdata(dataDir + item, 0, header=True)
+        img0, hdu0 = fits.getdata(item, 0, header=True)
 
         # correcting the orientation of the images
         new_img0 = img0[:,::-1,:]
@@ -192,7 +192,7 @@ def read(dataDir, dataList, velMin, velMax):
         # raw_images.append([index, item, raw_sli0, xscale, yscale, hdu0.get('DELTA'), dic_id[index]])
         # print(dic_id[index], item, raw_sli0.shape, xscale.shape, yscale.shape, hdu0.get('DELTA'))
         dic["lineID"].append(dic_id[index])
-        dic["fileName"].append(dataDir + item)
+        dic["fileName"].append(item)
         dic["image"].append(raw_sli0)
         dic["xScale"].append(xscale)
         dic["yScale"].append(yscale)
@@ -305,12 +305,7 @@ if __name__ == "__main__":
     #     "zero.fits"
     #   ]
     # }
-    dataDir = '/Volumes/Kerberos/DATA/ETC/HST/TEDS_CUBE/NEW/'
-    dataList = dataDir + 'data_list.json'
-    # dataList = '/Volumes/Kerberos/CODES/CLOUDY/MODELS/WEIGELT/PYCLOUDY/data_list.json'
+    dataList = '/Volumes/Kerberos/DATA/ETC/HST/TEDS_CUBE/NEW/data_list.json'
     velMin, velMax = -60, -20
 
-    # providing dataDir & dataList independently
-    # allows for having data and list stored
-    # either in the same folder or in different places
-    read(dataDir, dataList, velMin, velMax)
+    read(dataList, velMin, velMax)

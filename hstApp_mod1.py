@@ -31,7 +31,7 @@ class MainApplication(tk.Frame):
 
         # defining the parent
         self.parent = parent
-        self.parent.title('HST App - Main module')
+        self.parent.title('HST App - Radial line profile module')
 
         # defining some containers
         self.mainContainer = tk.Frame(self.parent)

@@ -31,7 +31,7 @@ class MainApplication(tk.Frame):
 
         # defining the parent
         self.parent = parent
-        self.parent.title('HST App - Main module')
+        self.parent.title('HST App - iso-velocity images module')
 
         # defining some containers
         self.mainContainer = tk.Frame(self.parent)
@@ -81,7 +81,7 @@ class MainApplication(tk.Frame):
         self.canvas._tkcanvas.pack()
 
         # call the widgets
-        self.plot_radialProfile_Button()
+        # self.plot_images_Button()
         # self.show_image_Button()
         # self.plot_flux_Button()
         # self.plot_position_Button()
@@ -89,10 +89,10 @@ class MainApplication(tk.Frame):
         self.quitButton()
         self.readDataButton()
         self.clearDataButton()
-        # self.velScale()
-        self.slitWidthScale()
-        self.radiusScale()
-        self.paScale()
+        self.velScale()
+        # self.slitWidthScale()
+        # self.radiusScale()
+        # self.paScale()
         self.listLineIDListBox()
         self.logY_checkButton()
         self.timeFormatRadioButtons()
@@ -106,21 +106,21 @@ class MainApplication(tk.Frame):
         self.readDataButton.grid(row=2, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
         self.clearData.grid(row=2, column=1, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        self.plot_radialProfile_Button.grid(row=3, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
+        # self.plot_images_Button.grid(row=3, columnspan=2, sticky=tk.N+tk.S+tk.E+tk.W)
 
-        # self.velLabel.grid(row=4, columnspan=2, sticky=tk.W+tk.E)
-        # self.velScale.grid(row=5, columnspan=2, sticky=tk.W+tk.E)
+        self.velLabel.grid(row=4, columnspan=2, sticky=tk.W+tk.E)
+        self.velScale.grid(row=5, columnspan=2, sticky=tk.W+tk.E)
 
-        self.slitWidthLabel.grid(row=6, columnspan=2, sticky=tk.W+tk.E)
-        self.slitWidthScale.grid(row=7, columnspan=2, sticky=tk.W+tk.E)
+        # self.slitWidthLabel.grid(row=6, columnspan=2, sticky=tk.W+tk.E)
+        # self.slitWidthScale.grid(row=7, columnspan=2, sticky=tk.W+tk.E)
+        #
+        # self.radiusLabel.grid(row=8, columnspan=2, sticky=tk.W+tk.E)
+        # self.radiusScale.grid(row=9, columnspan=2, sticky=tk.W+tk.E)
+        #
+        # self.paLabel.grid(row=10, columnspan=2, sticky=tk.W+tk.E)
+        # self.paScale.grid(row=11, columnspan=2, sticky=tk.W+tk.E)
 
-        self.radiusLabel.grid(row=8, columnspan=2, sticky=tk.W+tk.E)
-        self.radiusScale.grid(row=9, columnspan=2, sticky=tk.W+tk.E)
-
-        self.paLabel.grid(row=10, columnspan=2, sticky=tk.W+tk.E)
-        self.paScale.grid(row=11, columnspan=2, sticky=tk.W+tk.E)
-
-        self.logY_checkButton.pack()
+        # self.logY_checkButton.pack()
 
         # Radio buttons for time format (called by self.timeFormatRadioButtons)
         self.timeFormatRadioButton1.grid(row=0, column=0, sticky=tk.W)
@@ -376,12 +376,12 @@ class MainApplication(tk.Frame):
         self.logY_checkButton.deselect()
 
     ### Plot data button -> canvas
-    def plot_radialProfile_Button(self):
+    def plot_images_Button(self):
         self.counter = 0
-        self.plot_radialProfile_Button = ttk.Button(self.frame1, text='Plot radial profile', command=self.myCanvas, style='green.TButton')
+        self.plot_images_Button = ttk.Button(self.frame1, text='Plot radial profile', command=self.myCanvas, style='green.TButton')
 
     # plot data
-    def plot_radialProfile(self, x, y, epoch):
+    def plot_images(self, x, y, epoch):
         if (self.data != None):
             # if data exist enter here
             self.fig.clf() # <- clear the entire figure instance
@@ -400,7 +400,7 @@ class MainApplication(tk.Frame):
             # warn user there is no data loaded
             self.printMessage()
 
-    def radialProfile(self, data, slitWidth=None, radius=None, pa=None):
+    def isoVelImage(self, data, velocity=None):
             ionData_prof1 = [] # np.empty((len(lineID), nepoch))
             ionData_x1 = [] # np.empty((len(lineID), nepoch))
             profile = hstMeasure.profile(data, radius, pa, slitWidth)
@@ -418,10 +418,8 @@ class MainApplication(tk.Frame):
             initial_slitWidth = float(self.slitWidth)
             initial_radius = float(self.radius)
             initial_pa = float(self.pa)
-            res = self.radialProfile(self.data,
-                                    slitWidth=initial_slitWidth,
-                                    radius=initial_radius,
-                                    pa=initial_pa
+            res = self.isoVelImage(self.data,
+                                    velocity=initial_slitWidth,
                                     )
             # selected epochs (checkboxes = 1)
             nonZero = np.flatnonzero(self.listOfCheckboxes)
@@ -433,13 +431,13 @@ class MainApplication(tk.Frame):
             # img = ionData[0]['image']
             # print("Hello, from inside 'canvas'!")
             epoch = self.JD[nonZero]
-            self.plot_radialProfile(xvar, yvar, epoch)
+            self.plot_images(xvar, yvar, epoch)
         else:
             # there is no data loaded
             a, b, size = 0., 360., 101
             xvar = np.linspace(a, b, num=size, endpoint=True)
             yvar = np.sin(xvar / 180. * np.pi) #(b - a) * np.random.random_sample(size) + a
-            self.plot_radialProfile(xvar, yvar)
+            self.plot_images(xvar, yvar)
 
 
 
