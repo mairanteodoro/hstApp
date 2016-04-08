@@ -41,21 +41,24 @@ class MainApplication(tk.Frame):
         tk.Grid.columnconfigure(self.mainContainer, 2, weight=1) # <- allows the button to expand to fill frame
 
         # controllers
-        self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
+        # self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
+        self.frame1 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
         self.frame1.grid(row=0, column=0, sticky=tk.W+tk.E+tk.N)
         tk.Grid.rowconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
         tk.Grid.columnconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
         tk.Grid.columnconfigure(self.frame1, 1, weight=1) # <- allows the button to expand to fill frame
 
         # time format
-        self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
+        # self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
+        self.frame2 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
         self.frame2.grid(row=1, column=0, sticky=tk.W+tk.E+tk.S)
         tk.Grid.columnconfigure(self.frame2, 0, weight=1)
         tk.Grid.columnconfigure(self.frame2, 1, weight=1)
         tk.Grid.columnconfigure(self.frame2, 2, weight=1)
 
         # canvas
-        self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
+        # self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
+        self.frame3 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
         self.frame3.grid(row=0, column=1, columnspan=2, sticky='nsew')
         tk.Grid.rowconfigure(self.frame3, 0, weight=1)
         tk.Grid.columnconfigure(self.frame3, 0, weight=1)
