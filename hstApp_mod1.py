@@ -42,7 +42,7 @@ class MainApplication(tk.Frame):
 
         # controllers
         # self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
-        self.frame1 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
+        self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
         self.frame1.grid(row=0, column=0, sticky=tk.W+tk.E+tk.N)
         tk.Grid.rowconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
         tk.Grid.columnconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
@@ -50,7 +50,7 @@ class MainApplication(tk.Frame):
 
         # time format
         # self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
-        self.frame2 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
+        self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
         self.frame2.grid(row=1, column=0, sticky=tk.W+tk.E+tk.S)
         tk.Grid.columnconfigure(self.frame2, 0, weight=1)
         tk.Grid.columnconfigure(self.frame2, 1, weight=1)
@@ -58,7 +58,7 @@ class MainApplication(tk.Frame):
 
         # canvas
         # self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
-        self.frame3 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
+        self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
         self.frame3.grid(row=0, column=1, columnspan=2, sticky='nsew')
         tk.Grid.rowconfigure(self.frame3, 0, weight=1)
         tk.Grid.columnconfigure(self.frame3, 0, weight=1)
@@ -77,6 +77,7 @@ class MainApplication(tk.Frame):
         # 2 - ... create a canvas...
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame3)
         plt.gcf().canvas.draw()
+        self.ax.axes.set_visible(False)
         self.canvas.get_tk_widget().pack()
         # 3 - ... and finally a toolbar
         self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.frame3)
@@ -271,6 +272,9 @@ class MainApplication(tk.Frame):
         self.fullPath = dataList = tkFileDialog.askopenfilename(initialdir=initialdir,
                                                 filetypes=[('JSON files', '*.json')])
         # dataDir = os.path.split(self.fullPath)[0]+'/'
+        #
+        # TO DO: THE VALUES BELOW MUST BE OBTAINED FROM THE GUI
+        #
         velMin = -60
         velMax = -20
         import hstData

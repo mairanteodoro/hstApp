@@ -42,7 +42,7 @@ class MainApplication(tk.Frame):
 
         # controllers
         # self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
-        self.frame1 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
+        self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
         self.frame1.grid(row=0, column=0, sticky=tk.W+tk.E+tk.N)
         tk.Grid.rowconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
         tk.Grid.columnconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
@@ -50,7 +50,7 @@ class MainApplication(tk.Frame):
 
         # time format
         # self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
-        self.frame2 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
+        self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
         self.frame2.grid(row=1, column=0, sticky=tk.W+tk.E+tk.S)
         tk.Grid.columnconfigure(self.frame2, 0, weight=1)
         tk.Grid.columnconfigure(self.frame2, 1, weight=1)
@@ -58,7 +58,7 @@ class MainApplication(tk.Frame):
 
         # canvas
         # self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
-        self.frame3 = tk.Frame(self.mainContainer, bd=3, relief=tk.SUNKEN)
+        self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
         self.frame3.grid(row=0, column=1, columnspan=2, sticky='nsew')
         tk.Grid.rowconfigure(self.frame3, 0, weight=1)
         tk.Grid.columnconfigure(self.frame3, 0, weight=1)
@@ -77,6 +77,7 @@ class MainApplication(tk.Frame):
         # 2 - ... create a canvas...
         self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame3)
         plt.gcf().canvas.draw()
+        self.ax.axes.set_visible(False)
         self.canvas.get_tk_widget().pack()
         # 3 - ... and finally a toolbar
         self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.frame3)
@@ -172,11 +173,12 @@ class MainApplication(tk.Frame):
 
     # Radio buttons for time format selection
     def timeFormatRadioButtons(self):
-        var = tk.IntVar()
-        self.timeFormatRadioButton1 = tk.Radiobutton(self.frame2, text="JD", variable=var, value=1, command=lambda:self.printTimeSelection(var))
-        self.timeFormatRadioButton2 = tk.Radiobutton(self.frame2, text="DecYear", variable=var, value=2, command=lambda:self.printTimeSelection(var))
-        self.timeFormatRadioButton3 = tk.Radiobutton(self.frame2, text="Phi", variable=var, value=3, command=lambda:self.printTimeSelection(var))
-        self.timeFormatRadioButton4 = tk.Radiobutton(self.frame2, text="Greg", variable=var, value=4, command=lambda:self.printTimeSelection(var))
+        self.timeFormatVar = tk.IntVar()
+        self.timeFormatVar.set(1)
+        self.timeFormatRadioButton1 = tk.Radiobutton(self.frame2, text="JD", variable=self.timeFormatVar, value=1, command=lambda:self.printTimeSelection(self.timeFormatVar))
+        self.timeFormatRadioButton2 = tk.Radiobutton(self.frame2, text="DecYear", variable=self.timeFormatVar, value=2, command=lambda:self.printTimeSelection(self.timeFormatVar))
+        self.timeFormatRadioButton3 = tk.Radiobutton(self.frame2, text="Phi", variable=self.timeFormatVar, value=3, command=lambda:self.printTimeSelection(self.timeFormatVar))
+        self.timeFormatRadioButton4 = tk.Radiobutton(self.frame2, text="Greg", variable=self.timeFormatVar, value=4, command=lambda:self.printTimeSelection(self.timeFormatVar))
 
 
     ### Line ID listbox
@@ -238,9 +240,9 @@ class MainApplication(tk.Frame):
 
     def createCheckboxes(self, time):
         # self.listOfCheckboxes = np.asarray(time) # number of checkboxes
-        # creating the checkboxes with JD (epochs)
+        # creating the checkboxes with time labels
         self.listEpochCheckButton = []
-        self.epoch_var = []
+        self.epoch_var = time
         col = 0
         row = 14
         for i, item in enumerate(time):
@@ -261,7 +263,7 @@ class MainApplication(tk.Frame):
             else:
                 self.epoch_checkButton.grid(row=row, column=col, sticky=tk.W+tk.E)
                 col += 1
-            self.epoch_var.append(var)
+            # self.epoch_var.append(var)
 
     # reading data
     def readData(self):
@@ -355,11 +357,9 @@ class MainApplication(tk.Frame):
             # if data exist enter here
             self.fig.clf() # <- clear the entire figure instance
             self.ax = self.fig.add_subplot(111) # <- create new axes
-            self.ax.set_yscale(self.logY_checkButton_var.get())
-            self.ax.set_title(self.lineID)
-            for i, item in enumerate(img):
-                self.ax.imshow(item[0]) # <- plot on new axes
-            self.ax.legend(loc='best', ncol=2, fontsize=8) # <- add legend
+            for i in range(len(self.nonZero)):
+                self.ax.set_title('{0} ({1})'.format(self.lineID, self.selectedEpochs[i]))
+                self.ax.imshow(img[self.nonZero[i]][0], interpolation='none') # <- plot on new axes
             self.fig.canvas.draw() # <- draw figure with new axes
         else:
             # warn user there is no data loaded
@@ -382,19 +382,13 @@ class MainApplication(tk.Frame):
             self.lineID = self.getLineIDFromListBox()
             initial_vel = float(self.curVel)
             img = self.isoVelImage()
-            # selected epochs (checkboxes = 1)
-            nonZero = np.flatnonzero(self.listOfCheckboxes)
-            # x1, prof1 = res[0], res[1]
-            # xvar, yvar = [], []
-            # for i, item in enumerate(nonZero):
-            #     xvar.append(x1[item][0])
-            #     yvar.append(prof1[item][0])
-            # img = ionData[0]['image']
-            # print("Hello, from inside 'canvas'!")
-            epoch = self.JD[nonZero]
+            # index of selected epochs (checkboxes = 1)
+            self.nonZero = np.flatnonzero(self.listOfCheckboxes)
+            self.selectedEpochs = self.epoch_var[self.nonZero]
             self.plot_images(img)
         else:
             # there is no data loaded
+            # dummy image; will never be displayed in canvas
             img = np.random.random((200,200))
             self.plot_images(img)
 
