@@ -23,6 +23,8 @@ matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
+import pdb as pdb
+
 
 class MainApplication(tk.Frame):
 
@@ -51,17 +53,27 @@ class MainApplication(tk.Frame):
         # time format
         # self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
         self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
-        self.frame2.grid(row=1, column=0, sticky=tk.W+tk.E+tk.S)
-        tk.Grid.columnconfigure(self.frame2, 0, weight=1)
-        tk.Grid.columnconfigure(self.frame2, 1, weight=1)
-        tk.Grid.columnconfigure(self.frame2, 2, weight=1)
+        self.frame2.grid(row=1, column=0, sticky=tk.S)
+        # tk.Grid.columnconfigure(self.frame2, 0, weight=1)
+        # tk.Grid.columnconfigure(self.frame2, 1, weight=1)
+        # tk.Grid.columnconfigure(self.frame2, 2, weight=1)
+        # tk.Grid.columnconfigure(self.frame2, 3, weight=1)
 
         # canvas
         # self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
         self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
-        self.frame3.grid(row=0, column=1, columnspan=2, sticky='nsew')
+        self.frame3.grid(row=0, column=1, columnspan=3, sticky='nsew')
         tk.Grid.rowconfigure(self.frame3, 0, weight=1)
         tk.Grid.columnconfigure(self.frame3, 0, weight=1)
+
+        # display options controllers
+        # self.frame4 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
+        self.frame4 = tk.Frame(self.mainContainer, bg='purple', bd=3, relief=tk.SUNKEN)
+        self.frame4.grid(row=1, column=1, sticky=tk.E)
+        tk.Grid.rowconfigure(self.frame4, 1, weight=1)
+        tk.Grid.columnconfigure(self.frame4, 0, weight=1)
+        tk.Grid.columnconfigure(self.frame4, 1, weight=1)
+        tk.Grid.columnconfigure(self.frame4, 2, weight=1)
 
         # parameters
         # self.frame3 = tk.Frame(self.parent, bg='blue', bd=3, relief=tk.SUNKEN)
@@ -70,7 +82,7 @@ class MainApplication(tk.Frame):
         # tk.Grid.columnconfigure(self.frame3, 0, weight=1)
 
 
-        # plot area
+        # plotting area
         # 1 - create a figure with no data...
         self.fig = Figure(figsize=(4,4))
         self.ax = self.fig.add_subplot(111)
@@ -83,6 +95,7 @@ class MainApplication(tk.Frame):
         self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.frame3)
         self.toolbar.update()
         self.canvas._tkcanvas.pack()
+
 
         # call the widgets
         self.plot_images_Button()
@@ -98,8 +111,8 @@ class MainApplication(tk.Frame):
         # self.radiusScale()
         # self.paScale()
         self.listLineIDListBox()
-        self.logY_checkButton()
         self.timeFormatRadioButtons()
+        self.displayOptionsRadioButtons()
 
         # gridding and packing
         self.listLineIDListBox.grid(row=0, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
@@ -131,6 +144,11 @@ class MainApplication(tk.Frame):
         self.timeFormatRadioButton2.grid(row=0, column=1, sticky=tk.W)
         self.timeFormatRadioButton3.grid(row=0, column=2, sticky=tk.W)
         self.timeFormatRadioButton4.grid(row=0, column=3, sticky=tk.W)
+
+        # Radio buttons for display options
+        self.displayOptionsRadioButton1.grid(row=0, column=0, sticky=tk.W)
+        self.displayOptionsRadioButton2.grid(row=0, column=1, sticky=tk.W)
+        self.displayOptionsRadioButton3.grid(row=0, column=2, sticky=tk.W)
 
         # Button configurations
         ttk.Style().configure('green.TButton', foreground='green')
@@ -335,16 +353,40 @@ class MainApplication(tk.Frame):
     def onVelScale(self, val):
         self.curVel = float(val)
         self.velVar.set("Velocity: {:+0.0f} km/s".format(float(val)))
+        if (self.data != None):
+            self.myCanvas()
 
-    ### Change Y scale of plot
-    def logY_checkButton(self):
-        self.logY_checkButton_var = tk.StringVar()
-        self.logY_checkButton = tk.Checkbutton(self.frame3,
-                                                text="log10/linear",
-                                                variable=self.logY_checkButton_var,
-                                                onvalue="log", offvalue="linear",
-                                                command=lambda:self.myCanvas())
-        self.logY_checkButton.deselect()
+
+    # display options functionality
+    def displayOptions(self, var):
+        # pdb.set_trace()
+        if (var.get() == 1):
+            # linear scale
+            img1 = self.isoVelImage()
+            img = img1
+        if (var.get() == 2):
+            # log10 scale
+            img2 = self.isoVelImage()
+            img = img2
+            for i in range(len(img)):
+                img[i][0] = np.log10(img2[i][0])
+        if (var.get() == 3):
+            # square root scale
+            img3 = self.isoVelImage()
+            img = img3
+            for i in range(len(img)):
+                img[i][0] = np.sqrt(img3[i][0])
+        # call plotting function
+        self.plot_images(img)
+
+
+    # display options radio buttons
+    def displayOptionsRadioButtons(self):
+        self.displayOption = tk.IntVar()
+        self.displayOption.set(1)
+        self.displayOptionsRadioButton1 = tk.Radiobutton(self.frame4, text="linear", variable=self.displayOption, value=1, command=lambda:self.displayOptions(self.displayOption))
+        self.displayOptionsRadioButton2 = tk.Radiobutton(self.frame4, text="log10", variable=self.displayOption, value=2, command=lambda:self.displayOptions(self.displayOption))
+        self.displayOptionsRadioButton3 = tk.Radiobutton(self.frame4, text="square root", variable=self.displayOption, value=3, command=lambda:self.displayOptions(self.displayOption))
 
     ### Plot data button -> canvas
     def plot_images_Button(self):
@@ -385,7 +427,9 @@ class MainApplication(tk.Frame):
             # index of selected epochs (checkboxes = 1)
             self.nonZero = np.flatnonzero(self.listOfCheckboxes)
             self.selectedEpochs = self.epoch_var[self.nonZero]
-            self.plot_images(img)
+            print(self.displayOption.get())
+            self.displayOptions(self.displayOption)
+            # self.plot_images(img)
         else:
             # there is no data loaded
             # dummy image; will never be displayed in canvas
