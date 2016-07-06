@@ -38,17 +38,17 @@ class MainApplication(tk.Frame):
         # defining some containers
         self.mainContainer = tk.Frame(self.parent)
         self.mainContainer.pack(fill=tk.X, expand=1)
-        tk.Grid.columnconfigure(self.mainContainer, 0, weight=1) # <- allows the button to expand to fill frame
-        tk.Grid.columnconfigure(self.mainContainer, 1, weight=1) # <- allows the button to expand to fill frame
-        tk.Grid.columnconfigure(self.mainContainer, 2, weight=1) # <- allows the button to expand to fill frame
+        # tk.Grid.columnconfigure(self.mainContainer, 0, weight=1) # <- allows the button to expand to fill frame
+        # tk.Grid.columnconfigure(self.mainContainer, 1, weight=1) # <- allows the button to expand to fill frame
+        # tk.Grid.columnconfigure(self.mainContainer, 2, weight=1) # <- allows the button to expand to fill frame
 
         # controllers
         # self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
         self.frame1 = tk.Frame(self.mainContainer, bg='red', bd=3, relief=tk.SUNKEN)
         self.frame1.grid(row=0, column=0, sticky=tk.W+tk.E+tk.N)
-        tk.Grid.rowconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
-        tk.Grid.columnconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
-        tk.Grid.columnconfigure(self.frame1, 1, weight=1) # <- allows the button to expand to fill frame
+        # tk.Grid.rowconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
+        # tk.Grid.columnconfigure(self.frame1, 0, weight=1) # <- allows the button to expand to fill frame
+        # tk.Grid.columnconfigure(self.frame1, 1, weight=1) # <- allows the button to expand to fill frame
 
         # time format
         # self.frame2 = tk.Frame(self.mainContainer, bg='green', bd=3, relief=tk.SUNKEN)
@@ -63,17 +63,21 @@ class MainApplication(tk.Frame):
         # self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
         self.frame3 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
         self.frame3.grid(row=0, column=1, columnspan=3, sticky='nsew')
-        tk.Grid.rowconfigure(self.frame3, 0, weight=1)
-        tk.Grid.columnconfigure(self.frame3, 0, weight=1)
+        # tk.Grid.rowconfigure(self.frame3, 0, weight=1)
+        # tk.Grid.columnconfigure(self.frame3, 0, weight=1)
 
         # display options controllers
         # self.frame4 = tk.Frame(self.mainContainer, bg='blue', bd=3, relief=tk.SUNKEN)
         self.frame4 = tk.Frame(self.mainContainer, bg='purple', bd=3, relief=tk.SUNKEN)
-        self.frame4.grid(row=1, column=1, sticky=tk.E)
-        tk.Grid.rowconfigure(self.frame4, 1, weight=1)
-        tk.Grid.columnconfigure(self.frame4, 0, weight=1)
-        tk.Grid.columnconfigure(self.frame4, 1, weight=1)
-        tk.Grid.columnconfigure(self.frame4, 2, weight=1)
+        self.frame4.grid(row=1, column=1, sticky=tk.W)
+        # tk.Grid.rowconfigure(self.frame4, 1, weight=1)
+        # tk.Grid.columnconfigure(self.frame4, 0, weight=1)
+        # tk.Grid.columnconfigure(self.frame4, 1, weight=1)
+        # tk.Grid.columnconfigure(self.frame4, 2, weight=1)
+
+        # re-scale option
+        self.frame5 = tk.Frame(self.mainContainer, bg='orange', bd=3, relief=tk.SUNKEN)
+        self.frame5.grid(row=1, column=1, sticky=tk.E)
 
         # parameters
         # self.frame3 = tk.Frame(self.parent, bg='blue', bd=3, relief=tk.SUNKEN)
@@ -113,6 +117,7 @@ class MainApplication(tk.Frame):
         self.listLineIDListBox()
         self.timeFormatRadioButtons()
         self.displayOptionsRadioButtons()
+        self.rescale_checkButton()
 
         # gridding and packing
         self.listLineIDListBox.grid(row=0, column=0, sticky=tk.N+tk.S+tk.E+tk.W)
@@ -137,7 +142,7 @@ class MainApplication(tk.Frame):
         # self.paLabel.grid(row=10, columnspan=2, sticky=tk.W+tk.E)
         # self.paScale.grid(row=11, columnspan=2, sticky=tk.W+tk.E)
 
-        # self.logY_checkButton.pack()
+        self.rescale_checkButton.pack()
 
         # Radio buttons for time format (called by self.timeFormatRadioButtons)
         self.timeFormatRadioButton1.grid(row=0, column=0, sticky=tk.W)
@@ -281,7 +286,38 @@ class MainApplication(tk.Frame):
             else:
                 self.epoch_checkButton.grid(row=row, column=col, sticky=tk.W+tk.E)
                 col += 1
-            # self.epoch_var.append(var)
+        pdb.set_trace()
+        # self.epoch_checkButton.select()
+        # self.epoch_var.append(var)
+
+    def myRescale(self):
+        # pdb.set_trace()
+        if (self.rescale_checkButton_var.get() == '0'):
+            # no re-scaling
+            img1 = self.isoVelImage()
+            img = img1
+        if (self.rescale_checkButton_var.get() == '1'):
+            # re-scaling
+            import scipy.ndimage
+            img2 = self.isoVelImage()
+            img_ref = img2[0][0] # <- reference image
+            img = img2
+            for i in range(len(img)):
+                factor = (img[i][0]).shape[0] / (img_ref).shape[0]
+                pdb.set_trace()
+                img[i][0] = (img2[i][0])
+        # call plotting function
+        self.plot_images(img)
+
+    ### Re-scale images to match each other
+    def rescale_checkButton(self):
+        self.rescale_checkButton_var = tk.StringVar()
+        self.rescale_checkButton = tk.Checkbutton(self.frame5,
+                                                text="Re-scale images",
+                                                variable=self.rescale_checkButton_var,
+                                                onvalue=1, offvalue=0,
+                                                command=lambda:self.myRescale())
+        self.rescale_checkButton.deselect()
 
     # reading data
     def readData(self):
@@ -356,7 +392,6 @@ class MainApplication(tk.Frame):
         if (self.data != None):
             self.myCanvas()
 
-
     # display options functionality
     def displayOptions(self, var):
         # pdb.set_trace()
@@ -379,7 +414,6 @@ class MainApplication(tk.Frame):
         # call plotting function
         self.plot_images(img)
 
-
     # display options radio buttons
     def displayOptionsRadioButtons(self):
         self.displayOption = tk.IntVar()
@@ -391,7 +425,7 @@ class MainApplication(tk.Frame):
     ### Plot data button -> canvas
     def plot_images_Button(self):
         self.counter = 0
-        self.plot_images_Button = ttk.Button(self.frame1, text='Plot images', command=self.myCanvas, style='green.TButton')
+        self.plot_images_Button = ttk.Button(self.frame1, text='Update display', command=self.myCanvas, style='green.TButton')
 
     # plot data
     def plot_images(self, img):
@@ -399,9 +433,19 @@ class MainApplication(tk.Frame):
             # if data exist enter here
             self.fig.clf() # <- clear the entire figure instance
             self.ax = self.fig.add_subplot(111) # <- create new axes
+            self.ax.set_xlabel(r'$\Delta\alpha$ (arcsec)', fontsize=10)
+            self.ax.set_ylabel(r'$\Delta\delta$ (arcsec)', fontsize=10)
+            self.ax.tick_params(axis='both', which='major', labelsize=10)
+            # pdb.set_trace()
             for i in range(len(self.nonZero)):
                 self.ax.set_title('{0} ({1})'.format(self.lineID, self.selectedEpochs[i]))
-                self.ax.imshow(img[self.nonZero[i]][0], interpolation='none') # <- plot on new axes
+                self.ax.imshow(img[self.nonZero[i]][0], # <- plot on new axes
+                                interpolation='none',
+                                extent=[img[self.nonZero[i]][2][0]-(-0.5*img[self.nonZero[i]][4]),
+                                        img[self.nonZero[i]][2][-1]+(-0.5*img[self.nonZero[i]][4]),
+                                        img[self.nonZero[i]][3][0]+(-0.5*img[self.nonZero[i]][4]),
+                                        img[self.nonZero[i]][3][-1]-(-0.5*img[self.nonZero[i]][4])],
+                                )
             self.fig.canvas.draw() # <- draw figure with new axes
         else:
             # warn user there is no data loaded
@@ -413,12 +457,16 @@ class MainApplication(tk.Frame):
             # for the App, dataList must have the full path to the FITS files
             data = hstData.read(self.dataList, self.curVel, self.curVel)
             ionData = hstData.get(data, key='lineID', value=self.lineID) # retrieving the data for the ion
-            ionData_img.extend([[ionData[x]['image'],ionData[x]['lineID']] for x in range(self.nepoch)]) # storing image & lineID
+            ionData_img.extend([[ionData[x]['image'],
+                                ionData[x]['lineID'],
+                                ionData[x]['xScale'],
+                                ionData[x]['yScale'],
+                                ionData[x]['pixScale']] for x in range(self.nepoch)]) # storing image, lineID, xCenterOfPixels, yCenterOfPixels, & pixelScale
             return(ionData_img)
 
     ### Canvas
     def myCanvas(self):
-        import numpy as np
+        # import numpy as np
         if (self.data != None):
             # if data exist enter here
             self.lineID = self.getLineIDFromListBox()
